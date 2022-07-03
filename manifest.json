@@ -1,0 +1,18 @@
+{
+    "manifest_version": 2,
+    "name": "Rated Netflix",
+    "version": "1.0",
+
+    "description": "Insert imdb rating onto move page on netflix",
+
+    "content_scripts": [
+        {
+            "matches": ["*://www.netflix.com/*"],
+            "js": ["ratednflx.js"]
+        }
+    ],
+
+    "permissions": [
+        "*://www.omdbapi.com/*"
+    ]
+}
