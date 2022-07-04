@@ -3,14 +3,30 @@
 const re = /https:\/\/www\.netflix\.com\/browse\?jbv=([\S]*)$/;
 const apikey = "";
 const url = "http://www.omdbapi.com/?apikey=" + apikey;
-
 var ratings = {};
+
 async function getRating(name) {
   const response = await fetch(url + encodeURIComponent(name));
   const dict = await response.json();
-  console.log(dict["Title"], dict["imdbRating"]);
   if (dict["Title"] != undefined) {
-    ratings[dict["Title"]] = [dict["imdbRating"], dict["imdbID"]];
+    return [dict["imdbRating"], dict["imdbID"]];
+  } else {
+    return ["N/A", "N/A"];
+  }
+}
+
+async function insertLink(rating, title) {
+  const span = document.createElement("span");
+  const target = document.querySelector(".previewModal--detailsMetadata-right");
+  const imdb = "https://www.imdb.com/title/" + rating[1];
+  const imdbSearch = "https://www.imdb.com/find?q=" + encodeURIComponent(title);
+  if (!(rating[1] === "N/A")) {
+    span.innerHTML =
+      "<a target='_blank' href='" + imdb + "'>IMDB: " + rating[0] + "</a>";
+    target.appendChild(span);
+  } else {
+    span.innerHTML = "<a target='_blank' href='" + imdbSearch + "'>IMDB</a>";
+    target.appendChild(span);
   }
 }
 
@@ -21,12 +37,17 @@ var observer = new MutationObserver(function (mutations) {
   if (location.href !== previousUrl) {
     previousUrl = location.href;
     if (re.test(previousUrl)) {
-      title = document.querySelector(
+      let title = document.querySelector(
         ".about-header > h3:nth-child(1) > strong:nth-child(1)"
       ).textContent;
       if (!(title in ratings)) {
-        getRating(title);
-        console.log(ratings);
+        getRating(title)
+          .then((res) => {
+            ratings[title] = res;
+          })
+          .finally(() => insertLink(ratings[title], title));
+      } else {
+        insertLink(ratings[title], title);
       }
     }
   }
