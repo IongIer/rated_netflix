@@ -1,12 +1,12 @@
 //regex that matches if on correct page
 
 const re = /https:\/\/www\.netflix\.com\/browse\?jbv=([\S]*)$/;
-const apikey = "";
-const url = "http://www.omdbapi.com/?apikey=" + apikey;
+const url = browser.storage.local.get("apikey").then((key) => {
+  return "http://www.omdbapi.com/?apikey=" + key['apikey'];
+});
 var ratings = {};
-
 async function getRating(name) {
-  const response = await fetch(url + encodeURIComponent(name));
+  const response = await fetch(await url + encodeURIComponent(name));
   const dict = await response.json();
   if (dict["Title"] != undefined) {
     return [dict["imdbRating"], dict["imdbID"]];
