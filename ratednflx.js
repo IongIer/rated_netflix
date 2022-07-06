@@ -1,6 +1,6 @@
 //regex that matches if on correct page
 
-const re = /https:\/\/www\.netflix\.com\/browse\?jbv=([\S]*)$/;
+const re = /https:\/\/www\.netflix\.com\/.+jbv=([\d]+)$/;
 
 //retrive api key from extension storage and append to url
 const url = browser.storage.local.get("apikey").then((key) => {
