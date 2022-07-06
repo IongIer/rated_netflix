@@ -1,6 +1,6 @@
 //regex that matches if on correct page
 
-const re = /https:\/\/www\.netflix\.com\/.+jbv=([\d]+)$/;
+const re = /https:\/\/www\.netflix\.com\/.+jbv=(?:[\d]+)$/;
 
 //retrive api key from extension storage and append to url
 const url = browser.storage.local.get("apikey").then((key) => {
@@ -70,17 +70,22 @@ var observer = new MutationObserver(function (mutations) {
       ).textContent;
       // entry point for functions, if ratings already contains title insert link otherwise call api
       if (!(title in ratings)) {
-        if (duration.includes("Season") || duration.includes("Episode")) {
+        if (
+          duration.includes("Season") ||
+          duration.includes("Episode") ||
+          duration.includes("Limited")
+        ) {
           getSeriesRating(title)
             .then((result) => {
               ratings[title] = result;
             })
             .finally(() => insertLink(ratings[title], title));
         } else {
-          getMovieRating(title, year).then((result) => {
-            ratings[title] = result;
-          })
-          .finally(() => insertLink(ratings[title], title));
+          getMovieRating(title, year)
+            .then((result) => {
+              ratings[title] = result;
+            })
+            .finally(() => insertLink(ratings[title], title));
         }
       } else {
         insertLink(ratings[title], title);
