@@ -1,12 +1,20 @@
 //regex that matches if on correct page
 
 const re = /https:\/\/www\.netflix\.com\/browse\?jbv=([\S]*)$/;
+
+//retrive api key from extension storage and append to url
 const url = browser.storage.local.get("apikey").then((key) => {
-  return "http://www.omdbapi.com/?apikey=" + key['apikey'];
+  return "http://www.omdbapi.com/?apikey=" + key["apikey"];
 });
+
+//store returned results to avoid repeated requests
 var ratings = {};
-async function getRating(name) {
-  const response = await fetch(await url + encodeURIComponent(name));
+
+// due to how netflix stores year for series compared to omdb, year cannot be used for searches
+async function getSeriesRating(name) {
+  const response = await fetch(
+    (await url) + encodeURIComponent(name) + "&type=series"
+  );
   const dict = await response.json();
   if (dict["Title"] != undefined) {
     return [dict["imdbRating"], dict["imdbID"]];
@@ -15,6 +23,20 @@ async function getRating(name) {
   }
 }
 
+// this gets used in case a certain div on the page shows the duration in minutes instead of episodes
+async function getMovieRating(name, year) {
+  const response = await fetch(
+    (await url) + encodeURIComponent(name) + "&y=" + year
+  );
+  const dict = await response.json();
+  if (dict["Title"] != undefined) {
+    return [dict["imdbRating"], dict["imdbID"]];
+  } else {
+    return ["N/A", "N/A"];
+  }
+}
+
+// in case of a successful response from the api insert rating and link to imdb else link to imdb search with movie name
 async function insertLink(rating, title) {
   const span = document.createElement("span");
   const target = document.querySelector(".previewModal--detailsMetadata-right");
@@ -40,12 +62,26 @@ var observer = new MutationObserver(function (mutations) {
       let title = document.querySelector(
         ".about-header > h3:nth-child(1) > strong:nth-child(1)"
       ).textContent;
+      let duration = document.querySelector(
+        ".previewModal--detailsMetadata-info > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > span:nth-child(3)"
+      ).textContent;
+      let year = document.querySelector(
+        ".previewModal--detailsMetadata-info > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)"
+      ).textContent;
+      // entry point for functions, if ratings already contains title insert link otherwise call api
       if (!(title in ratings)) {
-        getRating(title)
-          .then((res) => {
-            ratings[title] = res;
+        if (duration.includes("Season") || duration.includes("Episode")) {
+          getSeriesRating(title)
+            .then((result) => {
+              ratings[title] = result;
+            })
+            .finally(() => insertLink(ratings[title], title));
+        } else {
+          getMovieRating(title, year).then((result) => {
+            ratings[title] = result;
           })
           .finally(() => insertLink(ratings[title], title));
+        }
       } else {
         insertLink(ratings[title], title);
       }
