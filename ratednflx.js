@@ -1,6 +1,6 @@
 //regex that matches if on correct page
 
-const re = /https:\/\/www\.netflix\.com\/.+jbv=(?:[\d]+)$/;
+const re = /.+jbv=(?:[\d]+)$/;
 
 //retrive api key from extension storage and append to url
 const url = browser.storage.local.get("apikey").then((key) => {
@@ -96,3 +96,5 @@ var observer = new MutationObserver(function (mutations) {
 
 const config = { subtree: true, childList: true };
 observer.observe(document, config);
+
+
