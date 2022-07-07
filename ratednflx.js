@@ -55,7 +55,7 @@ async function insertLink(rating, title) {
 //observing url change with code from https://stackoverflow.com/questions/37676526/how-to-detect-url-changes-in-spa/67825318#67825318
 
 var previousUrl = "";
-var observer = new MutationObserver(function (mutations) {
+const observer = new MutationObserver(()=> {
   if (location.href !== previousUrl) {
     previousUrl = location.href;
     if (re.test(previousUrl)) {
