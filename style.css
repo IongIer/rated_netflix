@@ -1,0 +1,21 @@
+
+
+body {
+	line-height: 1;
+    color: aliceblue;
+    background-color: rgba(0, 0, 0, 0.801);
+    padding: 1px;
+}
+
+div {
+    margin-bottom: 15px;
+}
+
+h1 {
+    color: rgba(0, 255, 255, 0.575);
+    text-align: center;
+}
+
+a {
+    color: rgba(0, 255, 255, 0.575);
+}
