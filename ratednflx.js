@@ -3,12 +3,14 @@
 const re = /.+jbv=(?:[\d]+)$/;
 
 //retrive api key from extension storage and append to url
-const url = browser.storage.local.get("apikey").then((key) => {
+let key = browser.storage.local.get("apikey");
+const url = key.then((key) => {
   return "http://www.omdbapi.com/?apikey=" + key["apikey"];
 });
 
 //store returned results to avoid repeated requests
-var ratings = {};
+let ratings = {};
+let previousUrl = "";
 
 // due to how netflix stores year for series compared to omdb, year cannot be used for searches
 async function getSeriesRating(name) {
@@ -51,50 +53,64 @@ async function insertLink(rating, title) {
     target.appendChild(span);
   }
 }
+function getDuration() {
+  return document.querySelector(
+    ".previewModal--detailsMetadata-info > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > span:nth-child(3)"
+  ).textContent;
+}
 
-//observing url change with code from https://stackoverflow.com/questions/37676526/how-to-detect-url-changes-in-spa/67825318#67825318
+function getTitle() {
+  return document.querySelector(
+    ".about-header > h3:nth-child(1) > strong:nth-child(1)"
+  ).textContent;
+}
 
-var previousUrl = "";
-const observer = new MutationObserver(()=> {
+function getYear() {
+  return document.querySelector(
+    ".previewModal--detailsMetadata-info > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)"
+  ).textContent;
+}
+
+function isSeries(duration) {
+  return (
+    duration.includes("Season") ||
+    duration.includes("Episode") ||
+    duration.includes("Limited")
+  );
+}
+//observing url change using code adapted from https://stackoverflow.com/questions/37676526/how-to-detect-url-changes-in-spa/67825318#67825318
+
+const observer = new MutationObserver(() => {
   if (location.href !== previousUrl) {
     previousUrl = location.href;
-    if (re.test(previousUrl)) {
-      let title = document.querySelector(
-        ".about-header > h3:nth-child(1) > strong:nth-child(1)"
-      ).textContent;
-      let duration = document.querySelector(
-        ".previewModal--detailsMetadata-info > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > span:nth-child(3)"
-      ).textContent;
-      let year = document.querySelector(
-        ".previewModal--detailsMetadata-info > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)"
-      ).textContent;
-      // entry point for functions, if ratings already contains title insert link otherwise call api
-      if (!(title in ratings)) {
-        if (
-          duration.includes("Season") ||
-          duration.includes("Episode") ||
-          duration.includes("Limited")
-        ) {
-          getSeriesRating(title)
-            .then((result) => {
-              ratings[title] = result;
-            })
-            .finally(() => insertLink(ratings[title], title));
-        } else {
-          getMovieRating(title, year)
-            .then((result) => {
-              ratings[title] = result;
-            })
-            .finally(() => insertLink(ratings[title], title));
+    key.then((result) => {
+      if ("apikey" in result) {
+        if (re.test(previousUrl)) {
+          let duration = getDuration();
+          let title = getTitle();
+          let year = getYear();
+          if (!(title in ratings)) {
+            if (isSeries(duration)) {
+              getSeriesRating(title)
+                .then((result) => {
+                  ratings[title] = result;
+                })
+                .finally(() => insertLink(ratings[title], title));
+            } else {
+              getMovieRating(title, year)
+                .then((result) => {
+                  ratings[title] = result;
+                })
+                .finally(() => insertLink(ratings[title], title));
+            }
+          } else {
+            insertLink(ratings[title], title);
+          }
         }
-      } else {
-        insertLink(ratings[title], title);
       }
-    }
+    })
   }
 });
 
 const config = { subtree: true, childList: true };
 observer.observe(document, config);
-
-
