@@ -40,17 +40,24 @@ async function getMovieRating(name, year) {
 
 // in case of a successful response from the api insert rating and link to imdb else link to imdb search with movie name
 async function insertLink(rating, title) {
-  const span = document.createElement("span");
+  const link = document.createElement("a");
   const target = document.querySelector(".previewModal--detailsMetadata-right");
   const imdb = "https://www.imdb.com/title/" + rating[1];
   const imdbSearch = "https://www.imdb.com/find?q=" + encodeURIComponent(title);
   if (!(rating[1] === "N/A")) {
-    span.innerHTML =
-      "<a target='_blank' href='" + imdb + "'>IMDB: " + rating[0] + "</a>";
-    target.appendChild(span);
+    const text = document.createTextNode("IMDB: " + rating[0]);
+    link.appendChild(text);
+    link.title = "IMDB: " + rating[0];
+    link.target = "_blank";
+    link.href = imdb;
+    target.appendChild(link);
   } else {
-    span.innerHTML = "<a target='_blank' href='" + imdbSearch + "'>IMDB</a>";
-    target.appendChild(span);
+    const text = document.createTextNode("IMDB");
+    link.appendChild(text);
+    link.title = "IMDB";
+    link.target = "_blank";
+    link.href = imdbSearch;
+    target.appendChild(link);
   }
 }
 function getDuration() {
@@ -108,7 +115,7 @@ const observer = new MutationObserver(() => {
           }
         }
       }
-    })
+    });
   }
 });
 
