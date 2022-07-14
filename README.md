@@ -5,7 +5,7 @@
 #### Video Demo: [DEMO](https://www.youtube.com/watch?v=x-OiXIfwVVY)
 
 #### How to use:
-1.[Mozilla extension page](https://addons.mozilla.org/en-US/firefox/addon/rated-netflix/)
+1.Install from [Mozilla extension page](https://addons.mozilla.org/en-US/firefox/addon/rated-netflix/)
 
 2. Get an api key from the link in the extension popup
 
