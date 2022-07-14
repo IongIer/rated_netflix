@@ -5,8 +5,7 @@
 #### Video Demo: [DEMO](https://www.youtube.com/watch?v=x-OiXIfwVVY)
 
 #### How to use:
-Temporary section explaining usage until extension gets approved in the official extension store
-1. Load temporary extension from [about debugging](about:debugging#/runtime/this-firefox)
+1.[Mozilla extension page](https://addons.mozilla.org/en-US/firefox/addon/rated-netflix/)
 2. Get an api key from the link in the extension popup
 3. Update key to extension storage
 4. When navigating Netflix, ratings and links to IMDB will be inserted in the movie details page DOM
