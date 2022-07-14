@@ -6,8 +6,11 @@
 
 #### How to use:
 1.[Mozilla extension page](https://addons.mozilla.org/en-US/firefox/addon/rated-netflix/)
+
 2. Get an api key from the link in the extension popup
+
 3. Update key to extension storage
+
 4. When navigating Netflix, ratings and links to IMDB will be inserted in the movie details page DOM
 
 #### Description:
